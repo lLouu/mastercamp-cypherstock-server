@@ -5,7 +5,10 @@ by XEU
 This project has been made in an academical context in EFREI PARIS, for preparing Masters in CyberSecurity and Network. It has been done in Python, however the idea is to get the most low-level we can to fully understand and have control over what's happening on the trafics. This app has been thought to be run on three server : the API ; the DB ; and the web app. The main functions reside in the API. However, many cryptology concepts are needed to understand the client side of the web app.
 
 ## Installation
-TBA
+Clone the repo using git
+```
+git clone https://github.com/lLouu/mastercamp-cypherstock-server [path-to-download]
+```
 
 ## Set-up
 ### API
