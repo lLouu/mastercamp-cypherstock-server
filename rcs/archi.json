@@ -1,0 +1,46 @@
+{
+    "user_table": {
+        "id":{
+            "type":"VARCHAR(20)",
+            "primary":1
+        },
+        "public":{
+            "type":"VARCHAR(365) NOT NULL",
+            "unique":1
+        },
+        "seed":{
+            "type":"VARCHAR(20)"
+        },
+        "pseudo":{
+            "type":"VARCHAR(30)"
+        }
+    },
+    "pkeys": {
+        "id":{
+            "type":"VARCHAR(20) NOT NULL",
+            "unique":1,
+            "foreign": "user_table(id)"
+        },
+        "cpkey":{
+            "type":"VARCHAR(650) NOT NULL"
+        },
+        "secret":{
+            "type":"VARCHAR(50)",
+            "unique":1
+        }
+    },
+    "share": {
+        "id":{
+            "type":"VARCHAR(20) NOT NULL",
+            "primary":1,
+            "foreign":"user_table(id)"
+        },
+        "path":{
+            "type":"VARCHAR(50) NOT NULL",
+            "primary":1
+        },
+        "symkey":{
+            "type":"VARCHAR(50)"
+        }
+    }
+}
