@@ -6,12 +6,11 @@ from os import environ as env
 from sys import argv
 from cryptography.fernet import Fernet
 
-from serve.lib import Runner
-
 def _gen_AES_key():
     print(Fernet.generate_key())
 
 def _launch():
+    from serve.lib import Runner
     Runner(int(env["API_PORT"]), True).launch()
 
 def _testing():
