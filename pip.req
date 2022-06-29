@@ -3,3 +3,4 @@ cryptography
 rsa
 typing_extensions
 mysql-connector-python
+requests

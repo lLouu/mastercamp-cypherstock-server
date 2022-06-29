@@ -38,7 +38,7 @@ class _PRNG(object):
     return result
 
 
-def _gen_profile(pwd: str, seed: str = None, secure: bool = False) -> tuple[str, str, str]:
+def gen_profile(pwd: str, seed: str = None, secure: bool = False) -> tuple[str, str, str]:
     if not seed:
         masterkey = RSA.generate(2048).exportKey('DER')
         raw_seed = PBKDF2(masterkey, get_random_bytes(16), 16 if not secure else 32, hmac_hash_module=SHA512)
@@ -51,7 +51,7 @@ def _gen_profile(pwd: str, seed: str = None, secure: bool = False) -> tuple[str,
     priv = _pwd_encrypt('-'.join(privkey.export_key()[32:-30].decode('utf-8').split('\n')).encode('utf-8'), pwd)
     return pub, priv, seed 
 
-def _gen_token(id: str, priv: bin, pwd: str):
+def gen_token(id: str, priv: bin, pwd: str):
     privkey = rsa.PrivateKey.load_pkcs1(b'-----BEGIN RSA PRIVATE KEY-----\n' + _pwd_decrypt(priv, pwd) + b'\n-----END RSA PRIVATE KEY-----')
     val = str(int(datetime.now().timestamp() + int(env["MAX_TO"])))
     sign = rsa.sign(val.encode('utf-8'), privkey, 'MD5')
@@ -73,7 +73,7 @@ def _derive_key(password: bytes, salt: bytes, iterations: int = _iterations) -> 
 def _pwd_encrypt(message: bytes, password: str, iterations: int = _iterations) -> str:
     salt = secrets.token_bytes(16)
     key = _derive_key(password.encode(), salt, iterations)
-    return '/'.join(b64e(
+    return '+'.join(b64e(
         b'%b%b%b' % (
             salt,
             iterations.to_bytes(4, 'big'),
@@ -82,7 +82,7 @@ def _pwd_encrypt(message: bytes, password: str, iterations: int = _iterations) -
     ).decode('utf-8').split('='))
 
 def _pwd_decrypt(token: str, password: str) -> bytes:
-    token = '='.join(token.split('/')).encode('utf-8')
+    token = '='.join(token.split('+'))
     decoded = b64d(token)
     salt, iter, token = decoded[:16], decoded[16:20], b64e(decoded[20:])
     iterations = int.from_bytes(iter, 'big')
@@ -94,8 +94,8 @@ def _pwd_decrypt(token: str, password: str) -> bytes:
 def _test():
     from serve.db import instance as db
     print("Testing token generation...")
-    pub, priv, seed = _gen_profile("tuturu")
-    token = _gen_token("lou", priv, "tuturu")
+    pub, priv, seed = gen_profile("tuturu")
+    token = gen_token("lou", priv, "tuturu")
     try:
         db.verify_token(token, pub)
         print("Ok.\n")
@@ -103,8 +103,8 @@ def _test():
         print("Fail - %s\n"%err)
     
     print("Testing 12 words seed recovery...")
-    pub_, priv_, seed_ = _gen_profile("tuturu", seed)
-    token_ = _gen_token("lou", priv_, "tuturu")
+    pub_, priv_, seed_ = gen_profile("tuturu", seed)
+    token_ = gen_token("lou", priv_, "tuturu")
     try:
         db.verify_token(token, pub_)
         db.verify_token(token_, pub)
@@ -114,8 +114,8 @@ def _test():
 
 
     print("Testing \"secure\" token generation...")
-    pub, priv, seed = _gen_profile("tuturu", secure=True)
-    token = _gen_token("lou", priv, "tuturu")
+    pub, priv, seed = gen_profile("tuturu", secure=True)
+    token = gen_token("lou", priv, "tuturu")
     try:
         db.verify_token(token, pub)
         print("Ok.\n")
@@ -123,8 +123,8 @@ def _test():
         print("Fail - %s\n"%err)
     
     print("Testing 24 words seed recovery...")
-    pub_, priv_, seed_ = _gen_profile("tuturu", seed)
-    token_ = _gen_token("lou", priv_, "tuturu")
+    pub_, priv_, seed_ = gen_profile("tuturu", seed)
+    token_ = gen_token("lou", priv_, "tuturu")
     try:
         db.verify_token(token, pub_)
         db.verify_token(token_, pub)

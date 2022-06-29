@@ -4,30 +4,198 @@ load_dotenv()
 from os import environ as env
 
 from sys import argv
-from cryptography.fernet import Fernet
 
 def _gen_AES_key():
+    from cryptography.fernet import Fernet
     print(Fernet.generate_key())
 
-def _launch():
+def _launch(port: int = int(env["API_PORT"])):
     from serve.lib import Runner
-    Runner(int(env["API_PORT"]), True).launch()
+    Runner(port, True).launch()
 
-def _testing():
-    pass
+def _testing(adr: str):
+    from requests import post
+    from cypherstock import gen_profile, gen_token
+    try:
+        print("Testing Profile creation...")
+        pub, priv, seed = gen_profile("tuturu")
+        token = gen_token("lou", priv, "tuturu")
+        adr = "http://" + adr + "/?auth=%s&command="
+        r = post(adr%token + "6&public=" + pub).content
+        if r != b"success":
+            print("Bad request")
+            raise Exception
+        print("Ok...\n")
+
+        print("Testing pseudo access...")
+        r = post(adr%token + "4&id=lou").content
+        if r != b"lou":
+            print("Bad request")
+            raise Exception
+        print("Ok...\n")
+
+        print("Testing public key access...")
+        r = post(adr%token + "5&id=lou").content
+        if r.decode('utf-8').split('\n')[0] != pub:
+            print("Bad request")
+            raise Exception
+        print("Ok...\n")
+
+        print("Testing pkey storage...")
+        r = post(adr%token + "6&pkey=" + priv).content
+        if r != b"success":
+            print("Bad request")
+            raise Exception
+        print("Ok...\n")
+
+        print("Testing access to pkey...")
+        r = post(adr%token + "0").content
+        if r.decode('utf-8') != priv:
+            print("Bad request")
+            raise Exception
+        print("Ok...\n")
+
+        print("Testing enabling 2FA...")
+        from serve.FA import gen_secret, get_totp_token
+        secret = gen_secret()
+        r = post(adr%token + "6&pkey=%s&secret=%s"%(priv, secret)).content
+        if r != b"success":
+            print("Bad request")
+            raise Exception
+        print("Ok...\n")
+
+        print("Testing access to pkey with 2FA...")
+        r = post(adr%token + "0&fa=" + get_totp_token(secret)).content
+        if r.decode('utf-8') != priv:
+            print("Bad request")
+            raise Exception
+        print("Ok...\n")
+
+        print("Testing disabling 2FA...")
+        r = post(adr%token + "6&pkey=%s&fa=%s"%(priv, get_totp_token(secret))).content
+        if r != b"success":
+            print("Bad request")
+            raise Exception
+        print("Ok...\n")
+
+        print("Testing pkey deletion...")
+        r = post(adr%token + "6&pkey=remove").content
+        if r != b"success":
+            print("Bad request")
+            raise Exception
+        print("Ok...\n")
+
+        try:
+            file = {}
+            print("Creation of two other profiles...")
+            pub, priv, seed = gen_profile("tuturu")
+            token_ = gen_token("oul", priv, "tuturu")
+            r = post(adr%token_ + "6&public=" + pub).content
+            if r != b"success":
+                print("Bad request")
+                raise Exception
+            pub, priv, seed = gen_profile("tuturu")
+            token__ = gen_token("ulo", priv, "tuturu")
+            r = post(adr%token__ + "6&public=" + pub).content
+            if r != b"success":
+                print("Bad request")
+                raise Exception
+            print("Ok...\n")
+
+            print("Upload of three random file for all three profiles...")
+            from secrets import token_bytes
+            file1 = token_bytes(16384)
+            r = post(adr%token + "8&id=lou-oul-ulo", data=file1, headers={"XEU-name" : "okarin", "XEU-desc" : "This should be seen by everyone"}).content
+            if r != b"success":
+                print("Bad request")
+                raise Exception
+            file2 = token_bytes(16384)
+            r = post(adr%token + "8&id=lou-oul", data=file2, headers={"XEU-name" : "okarin", "XEU-desc" : "This should be seen by lou and oul"}).content
+            if r != b"success":
+                print("Bad request")
+                raise Exception
+            file3 = token_bytes(16384)
+            r = post(adr%token + "8&id=lou-ulo", data=file3, headers={"XEU-name" : "okarin", "XEU-desc" : "This should be seen by lou and ulo"}).content
+            if r != b"success":
+                print("Bad request")
+                raise Exception
+            print("Ok...\n")
+
+            print("Get contacts...")
+            r = post(adr%token + "1").content
+            if r != b"[('lou',), ('oul',), ('ulo',)]":
+                print("Bad request")
+                raise Exception
+            print("Ok...\n")
+
+            print("Verify files access...")
+            r = post(adr%token + "2&id=oul").content.decode('utf-8').split('\n\n')
+            if r[0].split('-')[-1] != "This should be seen by everyone" or r[1].split('-')[-1] != "This should be seen by lou and oul":
+                print("Bad request")
+                raise Exception
+            file = {"1": '-'.join(r[0].split('-')[:-1]), "2": '-'.join(r[1].split('-')[:-1])}
+            r = post(adr%token + "2&id=ulo").content.decode('utf-8').split('\n\n')
+            if r[0].split('-')[-1] != "This should be seen by everyone" or r[1].split('-')[-1] != "This should be seen by lou and ulo":
+                print("Bad request")
+                raise Exception
+            file["3"] = '-'.join(r[1].split('-')[:-1])
+            print("Ok...\n")
+
+            print("Verify file data...")
+            r = post(adr%token + "3&path=%s"%file["1"]).content
+            if r[1:] != file1:
+                print("Bad request")
+                raise Exception
+            r = post(adr%token + "3&path=%s"%file["2"]).content
+            if r[1:] != file2:
+                print("Bad request")
+                raise Exception
+            r = post(adr%token + "3&path=%s"%file["3"]).content
+            if r[1:] != file3:
+                print("Bad request")
+                raise Exception
+            print("Ok...\n")
+        except Exception as err:
+            print("Failed - %s\nStopping tests...\n"%err)
+        
+        print("Deleting files...")
+        for key in list(file.keys()):
+            r = post(adr%token + "9&path=%s"%file[key]).content
+            if r != b"success":
+                print("Bad request")
+        print("Ok...\n")
+
+        print("Deleting secondary profiles...")
+        r = post(adr%token_ + "7").content
+        if r != b"success":
+            print("Bad request")
+        r = post(adr%token__ + "7").content
+        if r != b"success":
+            print("Bad request")
+        print("Ok...\n")
+    except Exception as err:
+        print("Failed - %s\nStopping tests...\n"%err)
+
+    print("Testing profile deletion...")
+    r = post(adr%token + "7").content
+    if r != b"success":
+        print("Bad request")
+    print("Ok...\n")
 
 def _help():
-    pass
+    print("\n\n\n\nCypherStock API CLI -\nBy XEU\n\napi.py [port]\t\t- Launch the api on the port putted. Default value is setted in .env\napi.py g|gen|gen-aes\t- Give a random AES key for SLE_KEY\napi.py t|test <ip>\t- execute the test script on the ip\n\n")
 
 def __main__(*argv):
     try:
         if len(argv) < 2:
             _launch()
+        elif argv[1].isdigit():
+            _launch(argv[1])
         elif argv[1] in ["g", "gen", "gen-aes"]:
             _gen_AES_key()
         # Features to be implemented
-        elif argv[1] in ["t", "test"]:
-            _testing()
+        elif argv[1] in ["t", "test"] and len(argv) >= 3:
+            _testing(argv[2])
         else:
             _help()
     except Exception as err:
@@ -35,97 +203,4 @@ def __main__(*argv):
 
 if __name__ == "__main__":
     __main__(*argv)
-
-
-# file.write("Test 1 - Creation d'un profil\n")
-# file.write("localhost:3443/?auth="+auth+"&command=6&public="+pub)
-# file.write('\n')
-
-# file.write("Test 1_bis - Creation d'un second profil\n")
-# file.write("localhost:3443/?auth="+_auth+"&command=6&public="+_pub)
-# file.write('\n')
-
-# file.write("Test 1_ter - Creation d'un 3e profil\n")
-# file.write("localhost:3443/?auth="+mauth+"&command=6&public="+mpub)
-# file.write('\n')
-# file.write('\n')
-
-# file.write("Malicious_Test 1 - Test d'usurpation\n")
-# file.write("localhost:3443/?auth="+mauth+"&command=6&public="+_pub)
-# file.write('\n')
-# file.write('\n')
-# file.write('\n')
-
-# file.write("Test 2 - Stockage de la pkey\n")
-# file.write("localhost:3443/?auth="+auth+"&command=6&pkey="+'+'.join(priv.split('>')))
-# file.write('\n')
-# file.write('\n')
-# file.write('\n')
-
-# file.write("Test 3 - Accès à la pkey\n")
-# file.write("localhost:3443/?auth="+auth+"&command=0")
-# file.write('\n')
-# file.write('\n')
-# file.write('\n')
-
-# file.write("Test 4 - Remove de la pkey\n")
-# file.write("localhost:3443/?auth="+auth+"&command=6&pkey=remove")
-# file.write('\n')
-# file.write('\n')
-# file.write('\n')
-
-# file.write("Test 5 - Upload d'un fichier (à rajouter dans la requête le file et les header du titre, de la desc et du timestamp)\n")
-# file.write("localhost:3443/?auth="+auth+"&command=8&id=lou-uol")
-# file.write('\n')
-# file.write('\n')
-# file.write('\n')
-
-# file.write("Test 6 - Accès aux contacts\n")
-# file.write("localhost:3443/?auth="+auth+"&command=1")
-# file.write('\n')
-# file.write('\n')
-# file.write('\n')
-
-# file.write("Test 7 - Accès aux infos des fichiers communs\n")
-# file.write("localhost:3443/?auth="+auth+"&command=2&id=uol")
-# file.write('\n')
-# file.write('\n')
-# file.write('\n')
-
-# file.write("Test 8 - Accès au fichier (add le path du fichier)\n")
-# file.write("localhost:3443/?auth="+auth+"&command=3&path=")
-# file.write('\n')
-# file.write('\n')
-
-# file.write("Test Malicious 8 - Accès au fichier non accésible (add le path du fichier)\n")
-# file.write("localhost:3443/?auth="+mauth+"&command=3&path=")
-# file.write('\n')
-# file.write('\n')
-# file.write('\n')
-
-# file.write("Test 9 - Accès à des pseudo\n")
-# file.write("localhost:3443/?auth="+auth+"&command=4&id=uol")
-# file.write('\n')
-# file.write('\n')
-# file.write('\n')
-
-# file.write("Test 10 - Accès à la clé publique\n")
-# file.write("localhost:3443/?auth="+auth+"&command=5&id=uol")
-# file.write('\n')
-# file.write('\n')
-# file.write('\n')
-
-# file.write("Test 11 - Delete doc\n")
-# file.write("localhost:3443/?auth="+auth+"&command=9XXXXXXXXXXXXXXXXXXX")
-# file.write('\n')
-# file.write('\n')
-# file.write('\n')
-
-# file.write("Test 12 - Delete profil\n")
-# file.write("localhost:3443/?auth="+auth+"&command=7")
-# file.write('\n')
-# file.write('\n')
-# file.write('\n')
-
-
 

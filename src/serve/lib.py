@@ -144,21 +144,21 @@ class _APIHandler(_Handler):
                         raise FANotPassed
                 body = c_pkey.encode('utf-8')
             elif data["command"] == "1":
-                ids = db.fetch(data["auth"], "SELECT s1.id FROM share as s1 cross join share as s2 WHERE s1.path = s2.path and s2.id = \'%s\'"%id)
+                ids = db.fetch(data["auth"], "SELECT DISTINCT s1.id FROM share as s1 cross join share as s2 WHERE s1.path = s2.path and s2.id = \'%s\'"%id)
                 body = str(ids).encode('utf-8')
             elif data["command"] == "2":
                 if not "id" in keys:
                     raise NotEnoughtDataForRequest
-                paths = db.fetch(data["auth"], "SELECT s1.path from share as s1 cross join share as s2 WHERE s1.path = s2.path and s2.id = \'%s\' and s1.id = \'%s\'"%(data["id"], id))[0]
+                paths = db.fetch(data["auth"], "SELECT s1.path from share as s1 cross join share as s2 WHERE s1.path = s2.path and s2.id = \'%s\' and s1.id = \'%s\'"%(data["id"], id))
                 body = b''
                 for path in paths:
                     try:
-                        file = open(env["UPLOAD_PATH"] + path, "rb")
+                        file = open(env["UPLOAD_PATH"] + path[0], "rb")
                         desc = file.readline()
                         file.close()
                     except:
                         desc = "/!\ compromised".encode('utf-8')
-                    body += path.encode('utf-8') + b'-' + desc + b'\n'
+                    body += path[0].encode('utf-8') + b'-' + desc + b'\n'
             elif data["command"] == "3":
                 if not "path" in keys:
                     raise NotEnoughtDataForRequest
@@ -203,6 +203,12 @@ class _APIHandler(_Handler):
                     db.commit(data["auth"], "DELETE FROM user_table WHERE id=\'%s\'"%(id), public=data["public"])
                     db.commit(data["auth"], "INSERT INTO user_table VALUES (\'%s\', \'%s\', \'%s\', \'%s\')"%(id, data["public"], "" if not "seed" in keys else data["seed"], id if not "pseudo" in keys else data["pseudo"]), public=data["public"])
                 else:
+                    secret = db.fetch(data["auth"], "SELECT secret FROM pkeys WHERE id=\'%s\'"%id)
+                    if secret and secret[0][0]:
+                        if not "fa" in keys:
+                            raise FANeeded
+                        if not verify(secret[0][0], data["fa"]):
+                            raise FANotPassed
                     db.commit(data["auth"], "DELETE FROM pkeys WHERE id=\'%s\'"%id)
                     if data["pkey"] != "remove":
                         db.commit(data["auth"], "INSERT INTO pkeys VALUES (\'%s\', \'%s\', %s)"%(id, data["pkey"], "NULL" if not "secret" in keys else '\''+ data["secret"] +'\''))
@@ -216,7 +222,7 @@ class _APIHandler(_Handler):
                 h = list(self.headers.keys())
                 if not "Content-Length" in h or not "XEU-name" in h or not "id" in keys:
                     raise NotEnoughtDataForRequest
-                if not _verify_string(self.headers["XEU-name"]) or ("XEU-to" in h and not _verify_string(self.headers["XEU-to"])):
+                if not self.headers["XEU-name"].isalnum() or ("XEU-to" in h and not self.headers["XEU-to"].isdigit()):
                     raise ThisGuyTriedSomethingFishy
                 ids = data["id"].split('-')
                 sym = [] if not "sym" in keys else data["sym"].split('-')
