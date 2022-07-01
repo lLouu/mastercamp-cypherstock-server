@@ -1,4 +1,5 @@
 from http.server import CGIHTTPRequestHandler
+from json import loads
 from socketserver import ThreadingTCPServer, BaseRequestHandler, BaseServer
 from ssl import wrap_socket
 from threading import Thread
@@ -71,20 +72,20 @@ class _HTTPSHandler(_Handler):
 
     def set_header(self: Self) -> str:
         self.accessible = open(env["HTTP_PATH"] + "accessible.dat", "r").read().split('\n')
-        self.answered = open(env["HTTP_PATH"] + "answered.dat", "r").read().split('\n')
+        self.answered = loads(open(env["HTTP_PATH"] + "answered.dat", "r").read())
         link = self.path if not '?' in self.path else self.path.split('?')[0]
         if link in self.accessible: ## Review path
             self.send_response(200)
             ext = link.split('/')[-2]
             ## Review header
             self.send_header("Content-type", "text/" + ext + ";charset=utf-8")
-            self.send_header("Cache-Control", "public,max-age=" + env["CACHE_TO"] + ",must-revalidate")
+            self.send_header("Cache-Control", "public,max-age=" + env["CACHER_TO"] + ",must-revalidate")
             path = env["HTTP_PATH"] + link[1:]
-        elif link in self.answered:
+        elif link in list(self.answered.keys()):
             ## Review header
             self.send_response(200)
             self.send_header("Content-type", "text/html;charset=utf-8")
-            path = env["HTTP_PATH"] + "index.html"
+            path = env["HTTP_PATH"] + self.answered[link]
         else:
             self.send_error(404)
         self.end_headers()
@@ -136,12 +137,9 @@ class _APIHandler(_Handler):
             id = data["auth"].split('-')[0]
 
             if data["command"] == "0":
-                c_pkey, secret = db.fetch(data["auth"], "SELECT cpkey, secret FROM pkeys WHERE id = \'%s\'"%id)[0]
-                if secret:
-                    if not "fa" in keys:
-                        raise FANeeded
-                    if not verify(secret, data["fa"]):
-                        raise FANotPassed
+                if not "fa" in keys:
+                    raise FANeeded
+                c_pkey = db.FA_fetch(data["fa"], id)
                 body = c_pkey.encode('utf-8')
             elif data["command"] == "1":
                 ids = db.fetch(data["auth"], "SELECT DISTINCT s1.id FROM share as s1 cross join share as s2 WHERE s1.path = s2.path and s2.id = \'%s\'"%id)
@@ -211,7 +209,9 @@ class _APIHandler(_Handler):
                             raise FANotPassed
                     db.commit(data["auth"], "DELETE FROM pkeys WHERE id=\'%s\'"%id)
                     if data["pkey"] != "remove":
-                        db.commit(data["auth"], "INSERT INTO pkeys VALUES (\'%s\', \'%s\', %s)"%(id, data["pkey"], "NULL" if not "secret" in keys else '\''+ data["secret"] +'\''))
+                        if not "secret" in keys:
+                            raise NotEnoughtDataForRequest
+                        db.commit(data["auth"], "INSERT INTO pkeys VALUES (\'%s\', \'%s\', %s)"%(id, data["pkey"], '\''+ data["secret"] +'\''))
                 body = "success".encode('utf-8')
             elif data["command"] == "7":
                 db.commit(data["auth"], "DELETE FROM share WHERE id=\'%s\'"%(id))

@@ -4,8 +4,9 @@ from mysql import connector
 from os import environ as env
 from rsa import PublicKey, verify
 from json import loads
+from serve.FA import verify as faverify
 
-from serve.exeptions import ThisGuyTriedSomethingFishy, ThisIsNotAValidTokenBoy, ExpiredToken, TokenNeedToExpireSooner
+from serve.exeptions import FANotPassed, ThisGuyTriedSomethingFishy, ThisIsNotAValidTokenBoy, ExpiredToken, TokenNeedToExpireSooner
 
 _log_db = env["LOG_FOLDER"] + "db.log"
 _log_file = open(_log_db, 'a')
@@ -137,6 +138,28 @@ class _DataBase():
             _log_file.close()
             cursor.close()
             return None
+    
+    def FA_fetch(self: Self, FA: str, id: str) -> str:
+        self.__reconnect()
+        cursor = self.__connector.cursor(buffered=True)
+        try:
+            cursor.execute("SELECT cpkey, secret FROM pkeys WHERE id = \'%s\'"%id)
+            _log_file = open(_log_db, 'a')
+            _log_file.write("SELECT cpkey, secret FROM pkeys WHERE id = \'%s\'\n===\n"%id)
+            _log_file.close()
+        except:
+            _log_file = open(_log_db, 'a')
+            _log_file.write("Data Base can't find : SELECT cpkey, secret FROM pkeys WHERE id = \'%s\' \n===\n"%id)
+            _log_file.close()
+            cursor.close()
+            return None
+        pkey, secret = cursor.fetchall()[0]
+        cursor.close()
+        if not faverify(secret, FA):
+            raise FANotPassed
+        return pkey
+        
+
 
 
     def __reconnect(self):

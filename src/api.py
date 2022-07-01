@@ -41,20 +41,6 @@ def _testing(adr: str):
             raise Exception
         print("Ok...\n")
 
-        print("Testing pkey storage...")
-        r = post(adr%token + "6&pkey=" + priv).content
-        if r != b"success":
-            print("Bad request")
-            raise Exception
-        print("Ok...\n")
-
-        print("Testing access to pkey...")
-        r = post(adr%token + "0").content
-        if r.decode('utf-8') != priv:
-            print("Bad request")
-            raise Exception
-        print("Ok...\n")
-
         print("Testing enabling 2FA...")
         from serve.FA import gen_secret, get_totp_token
         secret = gen_secret()
@@ -72,14 +58,7 @@ def _testing(adr: str):
         print("Ok...\n")
 
         print("Testing disabling 2FA...")
-        r = post(adr%token + "6&pkey=%s&fa=%s"%(priv, get_totp_token(secret))).content
-        if r != b"success":
-            print("Bad request")
-            raise Exception
-        print("Ok...\n")
-
-        print("Testing pkey deletion...")
-        r = post(adr%token + "6&pkey=remove").content
+        r = post(adr%token + "6&pkey=remove&fa=%s"%(get_totp_token(secret))).content
         if r != b"success":
             print("Bad request")
             raise Exception
