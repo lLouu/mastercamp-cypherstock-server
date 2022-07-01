@@ -1,1 +1,6 @@
-/
+{
+    "/": "app.html",
+    "/login" : "index.html",
+    "/signup" : "index.html",
+    "/verify" : "index.html"
+}
