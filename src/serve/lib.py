@@ -128,13 +128,16 @@ class _APIHandler(_Handler):
                 data[index] = value
             keys = list(data.keys())
 
-            if not "auth" in keys:
-                raise NoAuthTokenGiven
             if not "command" in keys:
                 raise NothingAsked
+            if not "auth" in keys and not data["command"] == "0":
+                raise NoAuthTokenGiven
             
             body = 'NULL'.encode('utf-8')
-            id = data["auth"].split('-')[0]
+            if "auth" in keys:
+                id = data["auth"].split('-')[0]
+            elif "id" in keys:
+                id = data["id"]
 
             if data["command"] == "0":
                 if not "fa" in keys:

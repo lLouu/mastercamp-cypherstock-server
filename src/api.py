@@ -51,7 +51,7 @@ def _testing(adr: str):
         print("Ok...\n")
 
         print("Testing access to pkey with 2FA...")
-        r = post(adr%token + "0&fa=" + get_totp_token(secret)).content
+        r = post((adr%'')[:-14] + "command=0&id=lou&fa=" + get_totp_token(secret)).content
         if r.decode('utf-8') != priv:
             print("Bad request")
             raise Exception

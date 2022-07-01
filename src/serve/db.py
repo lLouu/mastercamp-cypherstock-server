@@ -152,9 +152,12 @@ class _DataBase():
             _log_file.write("Data Base can't find : SELECT cpkey, secret FROM pkeys WHERE id = \'%s\' \n===\n"%id)
             _log_file.close()
             cursor.close()
-            return None
-        pkey, secret = cursor.fetchall()[0]
+            return "None"
+        data = cursor.fetchall()
         cursor.close()
+        if not len(data):
+            return "None"
+        pkey, secret = data[0]
         if not faverify(secret, FA):
             raise FANotPassed
         return pkey
