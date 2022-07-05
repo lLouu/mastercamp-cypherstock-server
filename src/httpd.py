@@ -1,4 +1,6 @@
-
+# Load .env
+from dotenv import load_dotenv
+load_dotenv()
 
 def __main__(*argv):
     from serve.lib import Runner

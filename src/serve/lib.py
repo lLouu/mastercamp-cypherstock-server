@@ -10,6 +10,7 @@ from os.path import exists
 import gzip
 from datetime import datetime
 from cryptography.fernet import Fernet
+from PIL import Image
 
 
 from serve.db import instance as db
@@ -57,11 +58,20 @@ class _Handler(CGIHTTPRequestHandler):
         self.error_message_format = file.read()
         super().__init__(request, client_address, server)
 
+    def do_OPTIONS(self) -> None:
+        self.send_response(200)
+        self.send_header("Access-Control-Allow-Origin", env["ALLOW_ORIGIN"])
+        self.send_header("Access-Control-Allow-Headers", env["ALLOW_HEADERS"])
+        self.send_header("Access-Control-Allow-Methods", env["ALLOW_METHODS"])
+        self.end_headers()
+
     def do_HEAD(self) -> None:
         self.send_response(200)
         self.set_header()
     
     def set_header(self: Self):
+        self.send_header("Access-Control-Allow-Origin", env["ALLOW_ORIGIN"])
+        self.send_header("Access-Control-Allow-Headers", env["ALLOW_HEADERS"])
         self.send_header("Content-type", "text/plain;charset=utf-8")
         self.end_headers()
 
@@ -75,12 +85,16 @@ class _HTTPSHandler(_Handler):
         self.answered = loads(open(env["HTTP_PATH"] + "answered.dat", "r").read())
         link = self.path if not '?' in self.path else self.path.split('?')[0]
         if link in self.accessible: ## Review path
+            path = env["HTTP_PATH"] + link[1:]
             self.send_response(200)
             ext = link.split('/')[-2]
-            ## Review header
-            self.send_header("Content-type", "text/" + ext + ";charset=utf-8")
+            if ext != "rcs":
+                ## Review header
+                self.send_header("Content-type", "text/" + ext + ";charset=utf-8")
+            else:
+                i = Image.open(path)
+                self.send_header("Content-type", "image/" + i.format + ";charset=utf-8")
             self.send_header("Cache-Control", "public,max-age=" + env["CACHER_TO"] + ",must-revalidate")
-            path = env["HTTP_PATH"] + link[1:]
         elif link in list(self.answered.keys()):
             ## Review header
             self.send_response(200)
@@ -88,14 +102,16 @@ class _HTTPSHandler(_Handler):
             path = env["HTTP_PATH"] + self.answered[link]
         else:
             self.send_error(404)
+        self.send_header("Access-Control-Allow-Origin", env["ALLOW_ORIGIN"])
+        self.send_header("Access-Control-Allow-Headers", env["ALLOW_HEADERS"])
         self.end_headers()
         return path
 
     def do_GET(self: Self) -> None:
         try:
             path = self.set_header()
-            file = open(path, "r")
-            self.wfile.write(file.read().encode("utf-8"))
+            file = open(path, "rb")
+            self.wfile.write(file.read())
         except:
             self.send_error(404)
 
@@ -110,6 +126,8 @@ class _APIHandler(_Handler):
     def set_header(self: Self):
         ## Review header
         self.send_response(200)
+        self.send_header("Access-Control-Allow-Origin", env["ALLOW_ORIGIN"])
+        self.send_header("Access-Control-Allow-Headers", env["ALLOW_HEADERS"])
         self.send_header("Content-type", "text/plain;charset=utf-8")
         self.send_header("Cache-Control", "no-cache")
         self.end_headers()
