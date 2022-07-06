@@ -80,14 +80,14 @@ footer > img{
     bottom: 15px;
 }
 
-#FA{
+.check{
     margin-top: 5px;
     max-width: 400px;
     width: 80%;
     min-height: 30px;
 }
 
-#FA > input[type=checkbox]{
+.check > input[type=checkbox]{
     -webkit-appearance: none;
     border-radius: 10px;
     height: 20px;
@@ -96,11 +96,11 @@ footer > img{
     cursor: pointer;
 }
 
-#FA > input[type=checkbox]:checked{
+.check > input[type=checkbox]:checked{
     background:var(--button-color);
 }
 
-#FA > label{
+.check > label{
     font-size: 160%;
 }
 

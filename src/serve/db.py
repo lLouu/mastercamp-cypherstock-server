@@ -141,6 +141,8 @@ class _DataBase():
     
     def FA_fetch(self: Self, FA: str, id: str) -> str:
         self.__reconnect()
+        if not id.isalnum():
+            raise ThisGuyTriedSomethingFishy
         cursor = self.__connector.cursor(buffered=True)
         try:
             cursor.execute("SELECT cpkey, secret FROM pkeys WHERE id = \'%s\'"%id)

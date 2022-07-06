@@ -1,36 +1,300 @@
 <!DOCTYPE html>
 <html lang="fr">
-  <head>
+
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Xeu</title>
+    <title>CypherStock</title>
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/norm.css">
     <link rel="stylesheet" href="css/dark.css">
-    <link rel="stylesheet" href="css/index.css">
+    <link rel="stylesheet" href="css/app.css">
     <script src="javascript/script.js"></script>
-  </head>
+    <script src="javascript/app.js"></script>
+</head>
 
-  <body class="flex">
-    <header>
-      <h2>FR</h2>
-    </header>
+<body>
 
-    <div class="flex" id="form">
-      <div id="entete">
-        CipherStock
-      </div>
+    <div class="container">
 
-      <div class="flex" id="inputs">
-              
-      </div>
+        <div class="header">
 
-      <div class="flex" id="buttons">
+            <nav class="navbar">
+                <div class="menuButton">
+                   <div class="line"></div>
+                   <div class="line"></div>
+                   <div class="line"></div>
+                </div>
 
-      </div>
+                <ul class="nav-list">
+                    
+                    <li class="nav-item">
+                        <h1>Préférances</h1>
+                    </li>
+                    <li class="nav-item">
+                        <h>Emplacement clé privé</h>
+                    </li>
+
+                    <li class="radio-toolbar">
+                
+                        <input type="radio" id="radioLocal" name="radioLocation" value="Local">
+                        <label for="radioLocal">local</label>
+                    
+                        <input type="radio" id="radioServer" name="radioLocation" value="Server" checked>
+                        <label for="radioServer">server</label>
+
+                    </li>
+
+                    <li class="nav-item">
+                        <h2>Mode</h2>
+                    </li>
+
+                    <li class="radio-toolbar">
+                        
+                        <input type="radio" id="radioDark" name="radioMod" value="Dark" checked>
+                        <label for="radioDark">dark</label>
+                    
+                        <input type="radio" id="radioLight" name="radioMod" value="Light">
+                        <label for="radioLight">&#160light&#160</label> 
+
+                    </li>
+
+                    <li class="nav-item">
+                        <h3>Auto-lock</h3>
+                    </li>
+                    <li class="nav-item">
+                        <button id="timeBtn">15 minutes</button>
+                    </li>
+                    <li class="nav-item">
+                        <button id="a2fBtn">Désactiver l’A2F</button>
+                    </li>
+                </ul>
+
+            </nav>
+           
+            <div class="logo">
+                <h1 id="titre">CipherStock</h1>
+            </div>
+
+            <div class="question">
+                <img id ="help" src="rcs/help_icon.png">
+            </div>
+
+            <div class="language">
+                <h2 id="choice_lang" >FR</h2>
+            </div>
+
+        </div>
+
+        <nav class="profileMenu">
+
+            <form id="searching">
+                <input type="text" name="search" placeholder="Search..." id="search">
+            </form>
+
+            <ul id="profil">
+
+                <li>
+                    <button class="profilBtn">
+                    <img class="profilImage" src="rcs/profil_icon.png">
+                    <a >Profil</a>
+                    </button>
+                </li>
+                
+            </ul>
+
+            <!-- <div class="storage">
+                <div class="upgrade">
+                    <button id="buttonUpgrade">Upgrade</button>
+                </div> 
+
+                <div class="indicator">
+                    <progress id="progression" max="100" value="20"> 20% </progress>
+                    <p id="index">20/100Mo</p>
+                </div>
+            </div> -->
+            
+
+        </nav>
+
+        
+        <div class=main>
+
+            <div class="uploadPopUp">
+
+                <!-- <form onsubmit="FormSubmit()" autocomplete="off"> -->
+
+                <form onsubmit="event.preventDefault();FormSubmit();" autocomplete="off">
+
+                    <div class="content">
+                        <h class="title">Titre</h>
+                        <input class="fileInput" id="Name" type="text" name="name" placeholder="Titre" />
+                    </div>
+                    
+                    <div class="content">
+                        <h class="title">Destinataire</h>
+                        <input class="fileInput" id="Recipient" type="text" Description="recipient" placeholder="Destinataire" />
+                    </div>
+                    
+                    <div class="content">
+                        <h class="title">Description</h>
+                        <textarea class="descriptionInput" id="Description" name="description" placeholder="Décrivez votre fichier"></textarea>
+                    </div>
+
+                    <div class="content">
+                        <h class="title">Attachement</h>
+
+                        <div class="drop-zone">
+                            <span class="drop-zone__prompt">Glissez votre fichier ou cliquez pour ajouter</span>
+                            <input type="file" name="myFile" class="drop-zone__input">
+                        </div>
+
+                    </div>
+
+                    <div  class="formSubmit">
+                        <input id="submiBtn" type="submit" value="Envoyer">
+                    </div>
+
+                </form>
+
+            </div>
+
+            <table>
+
+                <tbody>
+
+                <tr>
+                    <td>
+                        <div class="fileFirstInfo">
+                            <h id="fileName">Titre</h>
+                            <h id="fileDate">Date</h>
+                        </div>
+                        
+                        <div class="fileOptions">
+                            <div class="description">
+                                <h id="descriptionBtn">Description1</h>
+                            </div>
+                            
+                            <div class="optionsBtn">
+
+                                <button class="fileBtn" id="previewBtn">Aperçu</button>
+                                <button class="fileBtn" id="downloadBtn">Télécharger</button>
+                                <button class="fileBtn" id="delFileBtn" onClick="Delete(this)">Supprimer</button>
+
+                            </div>
+                        </div> 
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        
+                        <div class="fileFirstInfo">
+                            <h id="fileName">Titre</h>
+                            <h id="fileDate">Date</h>
+                        </div>
+                        
+                        <div class="fileOptions">
+                            <div class="description">
+                                <h id="descriptionBtn">Description2</h>
+                            </div>
+                            
+                            <div class="optionsBtn">
+
+                                <button class="fileBtn" id="previewBtn">Aperçu</button>
+                                <button class="fileBtn" id="downloadBtn">Télécharger</button>
+                                <button class="fileBtn" id="delFileBtn" onClick="Delete(this)">Supprimer</button>
+
+                            </div>
+
+                        </div> 
+                    </td>
+
+                </tr>
+
+                <tr>
+                    <td>
+                        
+                        <div class="fileFirstInfo">
+                            <h id="fileName">Titre</h>
+                            <h id="fileDate">Date</h>
+                        </div>
+                        
+                        <div class="fileOptions">
+                            <div class="description">
+                                <h id="descriptionBtn">Description3</h>
+                            </div>
+                            
+                            <div class="optionsBtn">
+
+                                <button class="fileBtn" id="previewBtn">Aperçu</button>
+                                <button class="fileBtn" id="downloadBtn">Télécharger</button>
+                                <button class="fileBtn" id="delFileBtn" onClick="Delete(this)">Supprimer</button>
+
+                            </div>
+
+                        </div> 
+                    </td>
+
+                </tr>
+
+                <tr>
+                    <td>
+                        
+                        <div class="fileFirstInfo">
+                            <h id="fileName">Titre</h>
+                            <h id="fileDate">Date</h>
+                        </div>
+                        
+                        <div class="fileOptions">
+                            <div class="description">
+                                <h id="descriptionBtn">Description4</h>
+                            </div>
+                            
+                            <div class="optionsBtn">
+
+                                <button class="fileBtn" id="previewBtn">Aperçu</button>
+                                <button class="fileBtn" id="downloadBtn">Télécharger</button>
+                                <button class="fileBtn" id="delFileBtn" onClick="Delete(this)">Supprimer</button>
+
+                            </div>
+
+                        </div> 
+                    </td>
+
+                </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        <div class="footer">
+
+            <div class="settingsMenu">
+
+                <button id="changeButn">Changer de pseudo</button>
+                <button id="disconnectButn">Se déconnecter</button>
+                <button id="seedButn">Régénérer la seed</button>
+                <button id="delAccountButn">Supprimer le compte</button>
+            
+            </div>
+
+            <div class="avatar">
+                <img id="profilAvatar" src="rcs/profil_icon.png">
+            </div>
+
+            <div class="nickName">
+                <h id="name"> </h>
+            </div>
+
+            <div class="addFile">
+                <button id="buttonUpload">Envoyer un fichier</button>
+            </div> 
+
+        </div>
+
     </div>
-
-    <footer>
-      <img src="img/Xeu_logo.png" >
-    </footer>
-  </body>
+</body>
 </html>
