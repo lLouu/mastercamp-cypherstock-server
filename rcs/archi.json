@@ -40,7 +40,7 @@
             "primary":1
         },
         "symkey":{
-            "type":"VARCHAR(50)"
+            "type":"VARCHAR(2500)"
         }
     }
 }

@@ -13,6 +13,100 @@ def _launch(port: int = int(env["API_PORT"])):
     from serve.lib import Runner
     Runner(port, True).launch()
 
+def _sample(adr: str):
+    from requests import post
+    from cypherstock import gen_profile, gen_token
+    from cryptography.fernet import Fernet
+    from rsa import PublicKey, encrypt
+
+    print("Generating accounts...")
+    print("0/5")
+    adr = "http://" + adr + "/?auth=%s&command="
+    pubA, priv, seed = gen_profile("password")
+    tokenA = gen_token("MonsieurA", priv, "password")
+    r = post(adr%tokenA + "6&public=" + pubA).content
+    if r != b"success":
+        print("The samples seems to already be setted")
+        return
+    print("1/5")
+    admin_pub = post(adr%tokenA + "5&id=admin").content
+    if admin_pub == b'NULL':
+        print("Please create an admin user before asking for samples")
+        return
+    else:
+        pem = b'-----BEGIN PUBLIC KEY-----\n' + ('\n'.join(admin_pub.decode('utf-8').split('\n')[0].split('-'))).encode('utf-8') + b'\n-----END PUBLIC KEY-----\n'
+        admin_pub = PublicKey.load_pkcs1_openssl_pem(pem) 
+    pubB, priv, seed = gen_profile("password")
+    tokenB = gen_token("MonsieurB", priv, "password")
+    post(adr%tokenB + "6&public=" + pubB).content
+    print("2/5")
+    pubC, priv, seed = gen_profile("password")
+    tokenC = gen_token("MonsieurC", priv, "password")
+    post(adr%tokenC + "6&public=" + pubC).content
+    print("3/5")
+    pubD, priv, seed = gen_profile("password")
+    tokenD = gen_token("MonsieurD", priv, "password")
+    post(adr%tokenD + "6&public=" + pubD).content
+    print("4/5")
+    pubE, priv, seed = gen_profile("password")
+    tokenE = gen_token("MonsieurE", priv, "password")
+    post(adr%tokenE + "6&public=" + pubE).content
+    print("5/5")
+
+
+    print("getting public keys")
+    pubA = PublicKey.load_pkcs1_openssl_pem(b'-----BEGIN PUBLIC KEY-----\n' + '\n'.join(pubA.split('-')).encode('utf-8') + b'\n-----END PUBLIC KEY-----\n')
+    pubB = PublicKey.load_pkcs1_openssl_pem(b'-----BEGIN PUBLIC KEY-----\n' + '\n'.join(pubB.split('-')).encode('utf-8') + b'\n-----END PUBLIC KEY-----\n')
+    pubC = PublicKey.load_pkcs1_openssl_pem(b'-----BEGIN PUBLIC KEY-----\n' + '\n'.join(pubC.split('-')).encode('utf-8') + b'\n-----END PUBLIC KEY-----\n')
+    pubD = PublicKey.load_pkcs1_openssl_pem(b'-----BEGIN PUBLIC KEY-----\n' + '\n'.join(pubD.split('-')).encode('utf-8') + b'\n-----END PUBLIC KEY-----\n')
+    pubE = PublicKey.load_pkcs1_openssl_pem(b'-----BEGIN PUBLIC KEY-----\n' + '\n'.join(pubE.split('-')).encode('utf-8') + b'\n-----END PUBLIC KEY-----\n')
+    print("Done")
+
+
+    print("Generating files")
+    print("0/10")
+    key = Fernet.generate_key()
+    file1 = Fernet(key).encrypt(b"Bonjour file")
+    post(adr%tokenA + "8&id=admin-MonsieurA&sym=" + encrypt(key, admin_pub).hex() + "-" + encrypt(key, pubA).hex(), data=file1, headers={"XEU-name" : "Bonjour", "XEU-desc" : "Description de bonjour"}).content
+    print("1/10")
+    key = Fernet.generate_key()
+    file2 = Fernet(key).encrypt(b"Salut file")
+    post(adr%tokenA + "8&id=admin-MonsieurA-MonsieurB&sym=" + encrypt(key, admin_pub).hex() + "-" + encrypt(key, pubA).hex() + "-" + encrypt(key, pubB).hex(), data=file2, headers={"XEU-name" : "Salut", "XEU-desc" : "Description de salut"}).content
+    print("2/10")
+    key = Fernet.generate_key()
+    file3 = Fernet(key).encrypt(b"Hola file")
+    post(adr%tokenB + "8&id=admin-MonsieurB&sym=" + encrypt(key, admin_pub).hex() + "-" + encrypt(key, pubB).hex(), data=file3, headers={"XEU-name" : "Hola", "XEU-desc" : "Description de Hola"}).content
+    print("3/10")
+    key = Fernet.generate_key()
+    file4 = Fernet(key).encrypt(b"Ohayo file")
+    post(adr%tokenB + "8&id=admin-MonsieurB-MonsieurE&sym=" + encrypt(key, admin_pub).hex() + "-" + encrypt(key, pubB).hex() + "-" + encrypt(key, pubE).hex(), data=file4, headers={"XEU-name" : "Ohayo", "XEU-desc" : "Description de Ohayo"}).content
+    print("4/10")
+    key = Fernet.generate_key()
+    file5 = Fernet(key).encrypt(b"Dez mat file")
+    post(adr%tokenB + "8&id=admin-MonsieurB&sym=" + encrypt(key, admin_pub).hex() + "-" + encrypt(key, pubB).hex(), data=file5, headers={"XEU-name" : "Dez mat", "XEU-desc" : "Description de Dez mat"}).content
+    print("5/10")
+    key = Fernet.generate_key()
+    file6 = Fernet(key).encrypt(b"Hello file")
+    post(adr%tokenC + "8&id=admin-MonsieurC&sym=" + encrypt(key, admin_pub).hex() + "-" + encrypt(key, pubC).hex(), data=file6, headers={"XEU-name" : "Hello", "XEU-desc" : "Description de Hello"}).content
+    print("6/10")
+    key = Fernet.generate_key()
+    file7 = Fernet(key).encrypt(b"Hy file")
+    post(adr%tokenD + "8&id=admin-MonsieurD-MonsieurE&sym=" + encrypt(key, admin_pub).hex() + "-" + encrypt(key, pubD).hex() + "-" + encrypt(key, pubE).hex(), data=file7, headers={"XEU-name" : "Hy", "XEU-desc" : "Description de Hy"}).content
+    print("7/10")
+    key = Fernet.generate_key()
+    file8 = Fernet(key).encrypt(b"Tuturu file")
+    post(adr%tokenD + "8&id=admin-MonsieurD&sym=" + encrypt(key, admin_pub).hex() + "-" + encrypt(key, pubD).hex(), data=file8, headers={"XEU-name" : "Tuturu", "XEU-desc" : "Description de Tuturu"}).content
+    print("8/10")
+    key = Fernet.generate_key()
+    file9 = Fernet(key).encrypt(b"Bonsoir file")
+    post(adr%tokenD + "8&id=admin-MonsieurD&sym=" + encrypt(key, admin_pub).hex() + "-" + encrypt(key, pubD).hex(), data=file9, headers={"XEU-name" : "Bonsoir", "XEU-desc" : "Description de Bonsoir"}).content
+    print("9/10")
+    key = Fernet.generate_key()
+    file10 = Fernet(key).encrypt(b"Hallo file")
+    post(adr%tokenD + "8&id=admin-MonsieurD-MonsieurE-MonsieurA&sym=" + encrypt(key, admin_pub).hex() + "-" + encrypt(key, pubD).hex() + "-" + encrypt(key, pubE).hex(), data=file10, headers={"XEU-name" : "Hallo", "XEU-desc" : "Description de Hallo"}).content
+    print("10/10")
+            
+
 def _testing(adr: str):
     from requests import post
     from cypherstock import gen_profile, gen_token
@@ -172,9 +266,10 @@ def __main__(*argv):
             _launch(argv[1])
         elif argv[1] in ["g", "gen", "gen-aes"]:
             _gen_AES_key()
-        # Features to be implemented
         elif argv[1] in ["t", "test"] and len(argv) >= 3:
             _testing(argv[2])
+        elif argv[1] in ["s", "sample"]:
+            _sample(argv[2]);
         else:
             _help()
     except Exception as err:

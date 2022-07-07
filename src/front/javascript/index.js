@@ -200,7 +200,7 @@ const sign_up = async() => {
                         qr.setAttribute("id", "qr");
                         qr.setAttribute("secret", secret);
                         // The QR code doesn't work like this, we would need more time to implement this
-                        new QRCode(qr, {text: secret});
+                        new QRCode(qr, {text: URL.createObjectURL(secret), width:100, height:100});
                         let inputs = document.getElementById("inputs")
                         inputs.appendChild(instructions);
                         inputs.appendChild(qr);

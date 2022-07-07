@@ -22,69 +22,77 @@ document.addEventListener("DOMContentLoaded", () => {
     const popup = document.querySelector(".uploadPopUp");
     const table = document.querySelector("table");
     upload.addEventListener("click", ()=> {
-        popup.classList.toggle("showPopUp");
-        table.classList.toggle("blure"); 
+      table.style.display ="none"; 
+      popup.style.display ="flex"; 
     });
 
     const main = document.querySelector(".main"); 
     main.addEventListener("click", function (e) {
-    const target = e.target; 
 
-    /*fermeture des parties actives */ 
-    const activeFile = document.querySelector(".fileFirstInfo.showFile");
-    const activeOpt = document.querySelector(".fileOptions.showOption");
-
-    //if(currentlyActiveFile && target.matches(".fileFirstInfo")) {
-        
-    if(activeFile && activeFile != target) {
-         activeFile.classList.toggle("showFile");
-         activeOpt.classList.toggle("showOption");
-    }
-
-    /*ouverture*/ 
-    if (target.matches(".fileFirstInfo")){
-        target.classList.toggle("showFile");
-        const fileOpt = target.nextElementSibling;
-        fileOpt.classList.toggle("showOption");
-    }
-
+      const target = e.target;
+      
+      //fermeture de formulaire avec le click sur le main 
+      if(target == main){
+        popup.style.display ="none"; 
+        table.style.display ="flex"; 
+      }
+  
+      /*fermeture des parties actives */ 
+       const activeFile = document.querySelector(".fileFirstInfo.showFile");
+       const activeOpt = document.querySelector(".fileOptions.showOption");
+  
+      //if(currentlyActiveFile && target.matches(".fileFirstInfo")) {
+  
+      if(activeFile && activeFile != target) {
+           activeFile.classList.toggle("showFile");
+           activeOpt.classList.toggle("showOption");
+      }
+  
+      /*ouverture*/ 
+      if (target.matches(".fileFirstInfo")){
+          target.classList.toggle("showFile");
+          const fileOpt = target.nextElementSibling;
+          fileOpt.classList.toggle("showOption");
+      }
+  
   });
 
-  /*drag and drop */ 
-  document.querySelectorAll(".drop-zone__input").forEach((inputElement) => {
-    const dropZoneElement = inputElement.closest(".drop-zone");
+  /*drag and drop */
+  document.querySelectorAll(".file_input").forEach((inputElement) => {
+    const dropZoneItem = inputElement.closest(".uploade-zone");
 
-    dropZoneElement.addEventListener("click", (e) => {
+    dropZoneItem.addEventListener("click", (e) => {
       inputElement.click();
     });
 
     inputElement.addEventListener("change", (e) => {
       if (inputElement.files.length) {
-        updateThumbnail(dropZoneElement, inputElement.files[0]);
+        updateFiel(dropZoneItem, inputElement.files[0]);
       }
     });
 
-    dropZoneElement.addEventListener("dragover", (e) => {
+    dropZoneItem.addEventListener("dragover", (e) => {
       e.preventDefault();
-      dropZoneElement.classList.add("drop-zone--over");
+      dropZoneItem.classList.add("uploade-zone--over");
     });
 
     ["dragleave", "dragend"].forEach((type) => {
-      dropZoneElement.addEventListener(type, (e) => {
-        dropZoneElement.classList.remove("drop-zone--over");
+      dropZoneItem.addEventListener(type, (e) => {
+        dropZoneItem.classList.remove("uploade-zone--over");
       });
     });
 
-    dropZoneElement.addEventListener("drop", (e) => {
+    dropZoneItem.addEventListener("drop", (e) => {
       e.preventDefault();
 
       if (e.dataTransfer.files.length) {
         inputElement.files = e.dataTransfer.files;
-        updateThumbnail(dropZoneElement, e.dataTransfer.files[0]);
+        updateFiel(dropZoneItem, e.dataTransfer.files[0]);
       }
 
-      dropZoneElement.classList.remove("drop-zone--over");
+      dropZoneItem.classList.remove("uploade-zone--over");
     });
+
   });
 });
 
@@ -92,54 +100,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 /*forme pour envoyer un fichier */ 
-function FormSubmit() {
+// function FormSubmit() {
 
-  var formData = readData(); 
-  console.log(formData);
-  insertFille(formData);
-  resetForm();
+//   var formData = readData(); 
+//   insertFille(formData);
+//   resetForm();
 
-}
+// }
 
-function readData() {
-    var formData = {};
-    formData["Name"] = document.getElementById("Name").value;
-    formData["Recipient"] = document.getElementById("Recipient").value;
-    formData["Description"] = document.getElementById("Description").value; 
-    return formData;
-}
-
-
-/*
-function insertFille(data) {
-    var table = document.querySelector("table").getElementsByTagName('tbody')[0];
-    var newRow = table.insertRow(table.length);
-    cell1 = newRow.insertCell(0);
-    cell1.innerHTML = `<div class="fileFirstInfo">
-                            <h id="fileName">Titre</h>
-                            <h id="fileDate">Date</h>
-                        </div>
-                        
-                        <div class="fileOptions">
-                            <div class="description">
-                                <h id="descriptionBtn">Description2</h>
-                            </div>
-                            
-                            <div class="optionsBtn">
-
-                                <button class="fileBtn" id="previewBtn">Aperçu</button>
-                                <button class="fileBtn" id="downloadBtn">Télécharger</button>
-                                <button class="fileBtn" id="delFileBtn" onClick="Delete(this)">Supprimer</button>
-
-                            </div>
-
-                        </div>`;
-
-                        // addonElement.innerHTML = "<div class="fileFirstInfo">" + data.className + "'>" +
-                        // "Your favorite color is now " + data.color +
-                        // "</div>";
-}
-*/
+// function readData() {
+//     var formData = {};
+//     formData["Name"] = document.getElementById("Name").value;
+//     formData["Recipient"] = document.getElementById("Recipient").value;
+//     formData["Description"] = document.getElementById("Description").value; 
+//     return formData;
+// }
 
 function resetForm() {
     document.getElementById("Name").value = "";
@@ -170,4 +145,181 @@ function updateThumbnail(dropZoneElement, file) {
   thumbnailElement.dataset.label = file.name;
 }
 
+const add_profile = (id) => {
+  let ret = document.createElement("li");
+  ret.appendChild(document.createElement("button"));
+  ret.firstChild.setAttribute("class", "profilBtn");
+  ret.firstChild.setAttribute("onclick", "get_infos('" + id + "');");
+  let img = document.createElement("img");
+  img.setAttribute("class", "profilImage");
+  img.src = "rcs/profil_icon.png";
+  ret.firstChild.appendChild(img);
+  let a = document.createElement("a");
+  a.textContent = id;
+  ret.firstChild.appendChild(a);
+
+  document.getElementById("profil").appendChild(ret);
+  return ret;
+}
+
+const add_document = (title, date, desc) => {
+  let ret = document.createElement("tr");
+  ret.appendChild(document.createElement("td"));
+
+  let fileFirstInfo = document.createElement("div");
+  fileFirstInfo.setAttribute("class", "fileFirstInfo");
+  let h1 = document.createElement("h");
+  h1.textContent = title;
+  let h2 = document.createElement("h");
+  h2.textContent = date;
+  fileFirstInfo.appendChild(h1);
+  fileFirstInfo.appendChild(h2);
+
+  let description = document.createElement("div");
+  description.setAttribute("class", "description");
+  description.appendChild(document.createElement("h"));
+  description.firstChild.textContent = desc;
+
+  let optionsBtn = document.createElement("div");
+  optionsBtn.setAttribute("class", "optionsBtn");
+  let app = document.createElement("button");
+  app.setAttribute("class", "fileBtn");
+  app.textContent = "Aperçu";
+  let tel = document.createElement("button");
+  tel.setAttribute("class", "fileBtn");
+  tel.textContent = "Télécharger";
+  let del = document.createElement("button");
+  del.setAttribute("class", "fileBtn");
+  del.textContent = "Supprimer";
+  optionsBtn.appendChild(app);
+  optionsBtn.appendChild(tel);
+  optionsBtn.appendChild(del);
+
+  let fileOptions = document.createElement("div");
+  fileOptions.setAttribute("class", "fileOptions");
+  fileOptions.appendChild(description);
+  fileOptions.appendChild(optionsBtn);
+
+  ret.appendChild(fileFirstInfo);
+  ret.appendChild(fileOptions);
+
+  document.getElementById("table").appendChild(ret);
+  return ret;
+}
+
+const get_infos = (id) => {
+  send_request(api_url + "/?auth=" + window.sessionStorage.getItem("token") + "&command=2&id="+id).then(res => {
+    if(res.ok){
+      res.text().then(res => {
+        document.getElementById("table").innerHTML = '';
+        let arr = res.split('\n\n');
+        let i = 0;
+        while(arr[i] != ''){
+          let infos = arr[i].split('-');
+          let date = new Date(parseInt(infos[1])*1000);
+          let d = date.getDate().toString() + "/" + date.getMonth().toString() + "/" + date.getFullYear().toString();
+          add_document(infos[0], d, infos[3]);
+          i++;
+        }
+      });
+    }
+  });
+}
+
+const disconnect = () => {
+  window.sessionStorage.removeItem('token');
+  window.location.href = '/login';
+}
+
+const delete_account = () => {
+  if(confirm("Êtes vous sur de vouloir supprimer définitivement votre compte ?")){
+    send_request(api_url + "?/auth=" + token).then(res => {
+      if(res.ok){
+        res.text().then(res => {
+          if(res == "success"){
+            disconnect();
+          }
+        });
+      }
+    });
+  }
+}
+
+const upload_func = async() => {
+  let ab = document.getElementById("up").files[0].arrayBuffer();
+  let dest = document.getElementById("Recipient").value.split(' ');
+  dest.push(window.sessionStorage.getItem("id"));
+  let title = document.getElementById("Name").value;
+  let desc = document.getElementById("Description").value;
+
+  
+  let key = window.crypto.subtle.generateKey({
+    name:"AES-CBC",
+    length: 256
+  }, true, ["encrypt", "decrypt"]);
+  let sym = [];
+  let i = 0;
+  while(dest[i] != undefined){
+    let res = await send_request(api_url + "/?auth=" + window.sessionStorage.getItem("token") + "&command=5&id=" + dest[i])
+    if(res.ok){
+      let pubkey = await window.crypto.subtle.importKey("spki", cpem2ab(await res.text()), {
+        name: "RSA-OAEP",
+        hash: "SHA-256"
+        }, false, ["encrypt"])
+      
+      sym.push(ab2hex(await window.crypto.subtle.encrypt(
+        {name: "RSA-OAEP"}, pubkey, await window.crypto.subtle.exportKey("raw", await key)
+      )));
+    }
+    i++;
+  }
+
+  ab = await ab;
+  let enc_file = await window.crypto.subtle.encrypt({
+    name: "AES-CBC",
+    iv: salt()
+  }, await key, ab);
+
+  send_request(api_url + "/?auth=" + window.sessionStorage.getItem("token") + "&command=8&id=" + dest.join('-') + "&sym=" + sym.join('-'), enc_file, title, desc).then(res => {
+    if(res.ok){
+      const popup = document.querySelector(".uploadPopUp");
+      const table = document.querySelector("table");
+      popup.style.display ="none"; 
+      table.style.display ="flex";
+      resetForm();
+    }
+  })
+}
+
+
+const set_dark = () => {
+  document.getElementById("mode").href = "css/dark.css"
+}
+
+const set_light = () => {
+  document.getElementById("mode").href = "css/light.css"
+}
+
+window.onload = () => {
+  let token = window.sessionStorage.getItem("token");
+  if(token == null){
+    window.location.href = "/login";
+  }
+
+  send_request(api_url + "/?auth=" + token + "&command=1").then(res => {
+    if(res.ok){
+      res.text().then(res => {
+        let arr = res.substr(1, res.length-2).split(', ');
+        let i = 0;
+        while(arr[i] != undefined){
+          add_profile(arr[i].split("'")[1]);
+          i++;
+        }
+      });
+    }
+  });
+  let id = token.split('-')[0];
+  document.getElementById("name").textContent = id;
+  window.sessionStorage.setItem("id", id);
+}
   

@@ -249,7 +249,7 @@ class _APIHandler(_Handler):
                 sym = [] if not "sym" in keys else data["sym"].split('-')
                 name = '%s-%s-%s'%(self.headers["XEU-name"], str(int(datetime.now().timestamp())), (str(int(datetime.now().timestamp()) + int(env["UPLOAD_TO"])) if not "XEU-to" in h else self.headers["XEU-to"]))
                 cmd = "INSERT INTO share VALUES "
-                sub = "(\'%s\',\'" + name + ("\', NULL)" if not "sym" in keys else ",\'%s\')")
+                sub = "(\'%s\',\'" + name + ("\', NULL)" if not "sym" in keys else "\',\'%s\')")
                 for i in range(len(ids)):
                     if len(sym):
                         arg = (ids[i], sym[i])

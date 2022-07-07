@@ -35,7 +35,7 @@ CREATE USER api@<api-server-ip> identified by "iamanagreaggatedapi";
 GRANT SELECT, DELETE, INSERT, ALTER, CREATE on xeu.* to api@<api-server-ip>;
 FLUSH PRIVILEGES;
 ```
-Also, on the right conf file at /etc/mysql, change bind-address to 0.0.0.0 or to the db server ip of the interface to listen
+Also, on the right conf file at /etc/mysql, change bind-address to 0.0.0.0 or to the db server ip of the interface to listen. With `py api.py sample`, you can generate sample inputs interacting with the id admin. Be sure to store an admin profile before the generation.
 #### .env
 You can then copy the file .env_patern into .env. Also, generate an AES key with `py api.py gen-aes`. Copy it then modify the .env as following:
  - Put the newly generated key in place of the generic one at SLE_KEY

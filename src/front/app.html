@@ -7,7 +7,7 @@
     <title>CypherStock</title>
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/norm.css">
-    <link rel="stylesheet" href="css/dark.css">
+    <link rel="stylesheet" id="mode" href="css/dark.css">
     <link rel="stylesheet" href="css/app.css">
     <script src="javascript/script.js"></script>
     <script src="javascript/app.js"></script>
@@ -31,8 +31,8 @@
                     <li class="nav-item">
                         <h1>Préférances</h1>
                     </li>
-                    <li class="nav-item">
-                        <h>Emplacement clé privé</h>
+                    <!-- <li class="nav-item">
+                        <h>Emplacement clé privée</h>
                     </li>
 
                     <li class="radio-toolbar">
@@ -41,9 +41,9 @@
                         <label for="radioLocal">local</label>
                     
                         <input type="radio" id="radioServer" name="radioLocation" value="Server" checked>
-                        <label for="radioServer">server</label>
+                        <label for="radioServer">serveur</label>
 
-                    </li>
+                    </li> -->
 
                     <li class="nav-item">
                         <h2>Mode</h2>
@@ -51,15 +51,15 @@
 
                     <li class="radio-toolbar">
                         
-                        <input type="radio" id="radioDark" name="radioMod" value="Dark" checked>
+                        <input type="radio" id="radioDark" name="radioMod" value="Dark" onclick="set_dark();" checked>
                         <label for="radioDark">dark</label>
                     
-                        <input type="radio" id="radioLight" name="radioMod" value="Light">
+                        <input type="radio" id="radioLight" name="radioMod" onclick="set_light();" value="Light">
                         <label for="radioLight">&#160light&#160</label> 
 
                     </li>
 
-                    <li class="nav-item">
+                    <!-- <li class="nav-item">
                         <h3>Auto-lock</h3>
                     </li>
                     <li class="nav-item">
@@ -67,7 +67,7 @@
                     </li>
                     <li class="nav-item">
                         <button id="a2fBtn">Désactiver l’A2F</button>
-                    </li>
+                    </li> -->
                 </ul>
 
             </nav>
@@ -93,13 +93,6 @@
             </form>
 
             <ul id="profil">
-
-                <li>
-                    <button class="profilBtn">
-                    <img class="profilImage" src="rcs/profil_icon.png">
-                    <a >Profil</a>
-                    </button>
-                </li>
                 
             </ul>
 
@@ -124,7 +117,7 @@
 
                 <!-- <form onsubmit="FormSubmit()" autocomplete="off"> -->
 
-                <form onsubmit="event.preventDefault();FormSubmit();" autocomplete="off">
+                <form onsubmit="event.preventDefault();" autocomplete="off">
 
                     <div class="content">
                         <h class="title">Titre</h>
@@ -146,13 +139,13 @@
 
                         <div class="drop-zone">
                             <span class="drop-zone__prompt">Glissez votre fichier ou cliquez pour ajouter</span>
-                            <input type="file" name="myFile" class="drop-zone__input">
+                            <input type="file" name="myFile" class="drop-zone__input" id="up">
                         </div>
 
                     </div>
 
                     <div  class="formSubmit">
-                        <input id="submiBtn" type="submit" value="Envoyer">
+                        <button id="submiBtn" onclick="upload_func();"> Envoyer</button>
                     </div>
 
                 </form>
@@ -161,108 +154,7 @@
 
             <table>
 
-                <tbody>
-
-                <tr>
-                    <td>
-                        <div class="fileFirstInfo">
-                            <h id="fileName">Titre</h>
-                            <h id="fileDate">Date</h>
-                        </div>
-                        
-                        <div class="fileOptions">
-                            <div class="description">
-                                <h id="descriptionBtn">Description1</h>
-                            </div>
-                            
-                            <div class="optionsBtn">
-
-                                <button class="fileBtn" id="previewBtn">Aperçu</button>
-                                <button class="fileBtn" id="downloadBtn">Télécharger</button>
-                                <button class="fileBtn" id="delFileBtn" onClick="Delete(this)">Supprimer</button>
-
-                            </div>
-                        </div> 
-                    </td>
-                </tr>
-
-                <tr>
-                    <td>
-                        
-                        <div class="fileFirstInfo">
-                            <h id="fileName">Titre</h>
-                            <h id="fileDate">Date</h>
-                        </div>
-                        
-                        <div class="fileOptions">
-                            <div class="description">
-                                <h id="descriptionBtn">Description2</h>
-                            </div>
-                            
-                            <div class="optionsBtn">
-
-                                <button class="fileBtn" id="previewBtn">Aperçu</button>
-                                <button class="fileBtn" id="downloadBtn">Télécharger</button>
-                                <button class="fileBtn" id="delFileBtn" onClick="Delete(this)">Supprimer</button>
-
-                            </div>
-
-                        </div> 
-                    </td>
-
-                </tr>
-
-                <tr>
-                    <td>
-                        
-                        <div class="fileFirstInfo">
-                            <h id="fileName">Titre</h>
-                            <h id="fileDate">Date</h>
-                        </div>
-                        
-                        <div class="fileOptions">
-                            <div class="description">
-                                <h id="descriptionBtn">Description3</h>
-                            </div>
-                            
-                            <div class="optionsBtn">
-
-                                <button class="fileBtn" id="previewBtn">Aperçu</button>
-                                <button class="fileBtn" id="downloadBtn">Télécharger</button>
-                                <button class="fileBtn" id="delFileBtn" onClick="Delete(this)">Supprimer</button>
-
-                            </div>
-
-                        </div> 
-                    </td>
-
-                </tr>
-
-                <tr>
-                    <td>
-                        
-                        <div class="fileFirstInfo">
-                            <h id="fileName">Titre</h>
-                            <h id="fileDate">Date</h>
-                        </div>
-                        
-                        <div class="fileOptions">
-                            <div class="description">
-                                <h id="descriptionBtn">Description4</h>
-                            </div>
-                            
-                            <div class="optionsBtn">
-
-                                <button class="fileBtn" id="previewBtn">Aperçu</button>
-                                <button class="fileBtn" id="downloadBtn">Télécharger</button>
-                                <button class="fileBtn" id="delFileBtn" onClick="Delete(this)">Supprimer</button>
-
-                            </div>
-
-                        </div> 
-                    </td>
-
-                </tr>
+                <tbody id="table">
 
                 </tbody>
 
@@ -274,24 +166,28 @@
 
             <div class="settingsMenu">
 
-                <button id="changeButn">Changer de pseudo</button>
-                <button id="disconnectButn">Se déconnecter</button>
-                <button id="seedButn">Régénérer la seed</button>
-                <button id="delAccountButn">Supprimer le compte</button>
+                <!-- <button id="changeButn">Changer de pseudo</button> -->
+                <button id="disconnectButn" onclick="disconnect();">Se déconnecter</button>
+                <!-- <button id="seedButn">Régénérer la seed</button> -->
+                <button id="delAccountButn" onclick="delete_account();">Supprimer le compte</button>
             
             </div>
 
-            <div class="avatar">
-                <img id="profilAvatar" src="rcs/profil_icon.png">
+            <div id="leftFooter">
+                <div class="avatar">
+                    <img id="profilAvatar" src="rcs/profil_icon.png">
+                </div>
+
+                <div class="nickName">
+                    <h id="name"></h>
+                </div>
             </div>
 
-            <div class="nickName">
-                <h id="name"> </h>
+            <div id="righFooter">
+                <div class="addFile">
+                    <button id="buttonUpload">Envoyer un fichier</button>
+                </div> 
             </div>
-
-            <div class="addFile">
-                <button id="buttonUpload">Envoyer un fichier</button>
-            </div> 
 
         </div>
 
