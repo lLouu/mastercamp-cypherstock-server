@@ -57,42 +57,41 @@ document.addEventListener("DOMContentLoaded", () => {
   
   });
 
-  /*drag and drop */
-  document.querySelectorAll(".file_input").forEach((inputElement) => {
-    const dropZoneItem = inputElement.closest(".uploade-zone");
+  /*drag and drop */ 
+  document.querySelectorAll(".drop-zone__input").forEach((inputElement) => {
+    const dropZoneElement = inputElement.closest(".drop-zone");
 
-    dropZoneItem.addEventListener("click", (e) => {
+    dropZoneElement.addEventListener("click", (e) => {
       inputElement.click();
     });
 
     inputElement.addEventListener("change", (e) => {
       if (inputElement.files.length) {
-        updateFiel(dropZoneItem, inputElement.files[0]);
+        updateThumbnail(dropZoneElement, inputElement.files[0]);
       }
     });
 
-    dropZoneItem.addEventListener("dragover", (e) => {
+    dropZoneElement.addEventListener("dragover", (e) => {
       e.preventDefault();
-      dropZoneItem.classList.add("uploade-zone--over");
+      dropZoneElement.classList.add("drop-zone--over");
     });
 
     ["dragleave", "dragend"].forEach((type) => {
-      dropZoneItem.addEventListener(type, (e) => {
-        dropZoneItem.classList.remove("uploade-zone--over");
+      dropZoneElement.addEventListener(type, (e) => {
+        dropZoneElement.classList.remove("drop-zone--over");
       });
     });
 
-    dropZoneItem.addEventListener("drop", (e) => {
+    dropZoneElement.addEventListener("drop", (e) => {
       e.preventDefault();
 
       if (e.dataTransfer.files.length) {
         inputElement.files = e.dataTransfer.files;
-        updateFiel(dropZoneItem, e.dataTransfer.files[0]);
+        updateThumbnail(dropZoneElement, e.dataTransfer.files[0]);
       }
 
-      dropZoneItem.classList.remove("uploade-zone--over");
+      dropZoneElement.classList.remove("drop-zone--over");
     });
-
   });
 });
 

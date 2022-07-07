@@ -5,4 +5,13 @@
     --ac-radio:rgb(55,101,219);
     --button-border-color:#0003a1;
     --button-color: rgb(2, 129, 202);
+    --top-header: #3A4E62;
+    --radio-hover: #697eb5;
+    --top-info: #2F88A4;
+    --bot-info: #3A4E62;
+    --popup: #316bae;
+    --thumbnail: rgba(0, 0, 0, 0.75);
+    --profile-menu: #25678CBF;
+    --upgrade: #4485C1;
+    --danger: #9A1111;
 }

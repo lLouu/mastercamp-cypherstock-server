@@ -1,0 +1,17 @@
+:root{
+    --background-color: #d1d1d1;
+    --font-color: #242e2e;
+    --desac-radio: rgb(151,151,151);
+    --ac-radio:rgb(55,101,219);
+    --button-border-color:#0003a1;
+    --button-color: rgb(2, 129, 202);
+    --top-header: #c4ced9;
+    --radio-hover: #697eb5;
+    --top-info: #939393;
+    --bot-info: #d0d3de;
+    --popup: #316bae;
+    --thumbnail: rgba(0, 0, 0, 0.75);
+    --profile-menu: #d6d6d6bf;
+    --upgrade: #4485C1;
+    --danger: #9A1111;
+}
